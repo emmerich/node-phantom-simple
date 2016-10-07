@@ -215,8 +215,8 @@ exports.create = function (options, callback) {
           break;
 
         case 'win32':
-		  // Some systems cannot call findstr, so we use a JavaScript alternative.
-		  // cmd = 'netstat -ano | findstr /R "\\<%d\\>"';
+          // Some systems cannot call findstr, so we use a JavaScript alternative.
+          // cmd = 'netstat -ano | findstr /R "\\<%d\\>"';
           cmd = 'netstat -ano';
           break;
 
@@ -243,8 +243,9 @@ exports.create = function (options, callback) {
       // Implementation of the findstr /R function in Windows
       var findstr = function(str, pid) {
         var regex = new RegExp(pid, 'g')
-		var lines = str.match(/[^\r\n]+/g).slice(2)
-		var matching = lines.filter((line) => regex.test(line))
+        // First 2 lines are headers and not important.
+        var lines = str.match(/[^\r\n]+/g).slice(2)
+        var matching = lines.filter((line) => regex.test(line))
         return matching.join('');
       }
 
