@@ -215,7 +215,7 @@ exports.create = function (options, callback) {
           break;
 
         case 'win32':
-          cmd = 'netstat -ano | findstr /R "\\<%d\\>"';
+          cmd = 'netstat -ano';// | findstr /R "\\<%d\\>"';
           break;
 
         case 'cygwin':
@@ -238,10 +238,19 @@ exports.create = function (options, callback) {
       // - this is only necessary when using cluster, but it's here regardless
       var my_pid_command = cmd.replace(/%d/g, process.pid);
 
+      var findstr = function(str, pid) {
+        var regex = new RegExp('<' + pid + '>')
+        return str.split(/[^\r\n]+/).filter((line) => regex.test(line)).join('');
+      }
+
       exec(my_pid_command, function (err, stdout /*, stderr*/) {
         if (err !== null) {
           // This can happen if grep finds no matching lines, so ignore it.
           stdout = '';
+        }
+
+        if(platform === 'win32') {
+          stdout = findstr(stdout, process.pid)
         }
 
         var re = /(?:127\.\d{1,3}\.\d{1,3}\.\d{1,3}|localhost):(\d+)/ig, match;
@@ -258,6 +267,10 @@ exports.create = function (options, callback) {
             phantom.kill();
             callback(new HeadlessError('Error executing command to extract phantom ports: ' + err));
             return;
+          }
+
+          if(platform === 'win32') {
+            stdout = findstr(stdout, phantom_pid)
           }
 
           var port;
