@@ -125,6 +125,13 @@ exports.create = function (options, callback) {
     options.bridgePath = path.join(__dirname, 'bridge.js');
   }
 
+  if (!options.useSystemFindstr) {
+    options.useSystemFindstr = false;
+  }
+
+  var findstrLocation = options.findstrLocation || 'findstr';
+  options.findstr = findstrLocation + ' /R "\\<%d\\>"';
+
   if (typeof options.parameters === 'undefined') { options.parameters = {}; }
 
   function spawnPhantom(callback) {
@@ -215,9 +222,14 @@ exports.create = function (options, callback) {
           break;
 
         case 'win32':
-          // Some systems cannot call findstr, so we use a JavaScript alternative.
-          // cmd = 'netstat -ano | findstr /R "\\<%d\\>"';
-          cmd = 'netstat -ano';
+          var netstat = 'netstat -ano';
+
+          if(options.useSystemFindstr) {
+            cmd = netstat + ' | ' + options.findstr;
+          } else {
+            cmd = netstat;
+          }
+
           break;
 
         case 'cygwin':
@@ -255,7 +267,7 @@ exports.create = function (options, callback) {
           stdout = '';
         }
 
-        if(platform === 'win32') {
+        if(platform === 'win32' && !options.useSystemFindstr) {
           stdout = findstr(stdout, process.pid)
         }
 
@@ -275,7 +287,7 @@ exports.create = function (options, callback) {
             return;
           }
 
-          if(platform === 'win32') {
+          if(platform === 'win32' && !options.useSystemFindstr) {
             stdout = findstr(stdout, phantom_pid)
           }
 
