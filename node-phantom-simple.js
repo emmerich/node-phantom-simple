@@ -256,7 +256,7 @@ exports.create = function (options, callback) {
       var findstr = function(str, pid) {
         var regex = new RegExp(pid, 'g')
         // First 2 lines are headers and not important.
-        var lines = str.match(/[^\r\n]+/g).slice(2)
+        var lines = (str.match(/[^\r\n]+/g) || []).slice(2)
         var matching = lines.filter((line) => regex.test(line))
         return matching.join('');
       }
