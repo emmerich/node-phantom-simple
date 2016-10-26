@@ -129,6 +129,10 @@ exports.create = function (options, callback) {
     options.useSystemFindstr = false;
   }
 
+  if(!options.findPortBuffer) {
+    options.findPortBuffer = 200;
+  }
+
   var findstrLocation = options.findstrLocation || 'findstr';
   options.findstr = findstrLocation + ' /R "\\<%d\\>"';
 
@@ -261,7 +265,7 @@ exports.create = function (options, callback) {
         return matching.join('');
       }
 
-      exec(my_pid_command, function (err, stdout /*, stderr*/) {
+      exec(my_pid_command, [], { maxBuffer: options.findPortBuffer * 1024 }, function (err, stdout /*, stderr*/) {
         if (err !== null) {
           // This can happen if grep finds no matching lines, so ignore it.
           stdout = '';
@@ -280,7 +284,7 @@ exports.create = function (options, callback) {
 
         var phantom_pid_command = cmd.replace(/%d/g, phantom_pid);
 
-        exec(phantom_pid_command, function (err, stdout /*, stderr*/) {
+        exec(phantom_pid_command, [], { maxBuffer: options.findPortBuffer * 1024 }, function (err, stdout /*, stderr*/) {
           if (err !== null) {
             phantom.kill();
             callback(new HeadlessError('Error executing command to extract phantom ports: ' + err));
