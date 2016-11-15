@@ -8,6 +8,12 @@ var pages  = {};
 var page_id = 1;
 
 var callback_stack = [];
+var phantomServerAddress = system.args[1];
+
+if(!phantomServerAddress) {
+  system.stderr.writeLine('No phantom server address specified. Check node-phantom-simple.');
+  phantom.exit(1);
+}
 
 // Max interval without requests from master process
 var WATCHDOG_TIMEOUT = 30000;
@@ -83,7 +89,7 @@ function include_js(res, page, args) {
   }));
 }
 
-webserver.listen('127.0.0.1:0', function (req, res) {
+webserver.listen(phantomServerAddress, function (req, res) {
   // Update watchdog timer on every request
   watchdog_clear();
 

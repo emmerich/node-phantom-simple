@@ -125,6 +125,10 @@ exports.create = function (options, callback) {
     options.bridgePath = path.join(__dirname, 'bridge.js');
   }
 
+  if (!options.phantomServerAddress) {
+    options.phantomServerAddress = '127.0.0.1:0';
+  }
+
   if (!options.useSystemFindstr) {
     options.useSystemFindstr = false;
   }
@@ -149,7 +153,7 @@ exports.create = function (options, callback) {
       });
     }
 
-    args = args.concat([ options.bridgePath ]);
+    args = args.concat([ options.bridgePath, options.phantomServerAddress ]);
 
     var phantom = spawn(options.path, args);
 
